@@ -1,0 +1,204 @@
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Grassland Fire Risk</title>
+        <style>
+            /* Add your CSS styles here */
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f2f2f2;
+                margin: 0;
+                padding: 0;
+                width: 100vw;
+                height: 100vh;
+                display:flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .container {
+                background-color: hsl(208, 100%, 97%, 0.8);
+                border-radius: 30px;
+                max-width: 800px;
+                padding: 40px 80px;
+                display: flex;
+                flex-direction: column;
+                row-gap: 30px;
+            }
+
+            h1 {
+                color: #272727;
+                text-align: center;
+                font-size: 38px;
+            }
+
+            p {
+                color: #1c1c1c;
+                line-height: 1.5;
+                font-size: 18px;
+            }
+
+            .bg{
+                background-image: url('./assets/pic2.jpg');
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-position: center;
+            }
+
+            .desc{
+                text-align: center;
+                font-weight: 500;
+            }
+
+            .btn{
+                display: block;
+                width: 100%;
+                height: 40px;
+                margin-top: 25px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: #27c74c;
+                font-weight: 600;
+                color: #fff;
+                text-decoration: none;
+                border-radius: 5px;
+                font-size: 20px;
+            }
+
+            .inputWrapper {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                justify-content: center;
+                align-items: center;
+                gap: 30px 40px;
+            }
+
+            .singleInput{
+                display: flex;
+                flex-direction: column;
+                row-gap: 10px;
+            }
+
+            input{
+                padding: 10px;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+                font-size: 16px;
+            }
+
+            label{
+                font-size: 16px;
+                font-weight: 600;
+            }
+
+            .actionNeeded{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 36px;
+                font-weight: 600;
+                color: #e54545;
+            }
+
+            .noActionNeeded{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 36px;
+                font-weight: 600;
+                color: #27c74c;
+            }
+            /* Add more styles as needed */
+
+        </style>
+    </head>
+    
+<body class="bg">
+
+    <div class="container">
+        <h1>Grassland Fire Risk</h1>
+        
+        <form id="myForm" onsubmit="handleSubmit">
+            <div id="inputWrapper" class="inputWrapper">
+                <div class="singleInput">
+                    <label for="temperature">Temperature:</label>
+                    <input type="text" id="temperature" name="temperature" placeholder="Enter Temperature">
+                </div>
+                <div class="singleInput">
+                    <label for="wind">Wind Speed:</label>
+                    <input type="text" id="wind" name="wind" placeholder="Enter Wind Speed">
+                </div>
+                <div class="singleInput">
+                    <label for="ffmc">ffmc:</label>
+                    <input type="text" id="ffmc" name="ffmc" placeholder="Enter ffmc">
+                </div>
+                <div class="singleInput">
+                    <label for="dmc">Moisture Content of Plant:</label>
+                    <input type="text" id="dmc" name="dmc" placeholder="Enter dmc ">
+                </div>
+                <div class="singleInput">
+                    <label for="isi">Moisture Content of Soil:</label>
+                    <input type="text" id="isi" name="isi" placeholder="Enter isi">
+                </div>
+            </div>
+            
+            <button id="submitter" type="submit" class="btn">Submit</button>
+            <div> <div id="result" class="result"></div></div>
+        </form>
+    </div>
+    <script>
+        // Define the handleSubmit function
+        function handleSubmit(event) {
+            event.preventDefault(); // Prevent default form submission
+    
+            // Extract values from form fields
+            var temperature = document.getElementById("temperature").value;
+            var wind = document.getElementById("wind").value;
+            var ffmc = document.getElementById("ffmc").value;
+            var dmc = document.getElementById("dmc").value;
+            var isi = document.getElementById("isi").value;
+    
+            // Construct data object with form values
+            var data = {
+                 "Temperature": parseFloat(temperature),
+                 "Ws": parseFloat(wind),
+                 "FFMC": parseFloat(ffmc),
+                 "DMC": parseFloat(dmc),
+                 "ISI": parseFloat(isi)
+            };
+
+            console.log(data);
+    
+            // Send AJAX POST request to FastAPI endpoint
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle response from server
+                console.log(data);
+                document.getElementById("result").innerHTML = data.prediction;
+                // Update UI with prediction result if needed
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle errors if needed
+            });
+    
+            // Reset the form
+            event.target.reset();
+        }
+    
+        // Attach the handleSubmit function to the form's onsubmit event
+        document.getElementById("myForm").addEventListener("submit", handleSubmit);
+    </script>
+    
+    </body>
+    </html>
